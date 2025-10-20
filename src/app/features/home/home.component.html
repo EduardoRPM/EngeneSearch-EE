@@ -1,0 +1,176 @@
+<div class="home-page">
+  <div class="home-canvas" aria-hidden="true">
+    <div class="home-canvas__glow home-canvas__glow--top"></div>
+    <div class="home-canvas__glow home-canvas__glow--bottom"></div>
+    <div class="home-canvas__orb home-canvas__orb--left"></div>
+    <div class="home-canvas__orb home-canvas__orb--right"></div>
+    <div class="home-canvas__orb home-canvas__orb--center"></div>
+  </div>
+
+  <div
+    class="home-hero"
+    [ngClass]="{
+      'home-hero--hidden': !isLoaded || isExiting,
+      'home-hero--visible': isLoaded && !isExiting
+    }"
+  >
+    <header class="hero-header">
+      <button
+        type="button"
+        class="hero-button hero-button--dark"
+        (click)="handleLogin()"
+      >
+        Iniciar sesión
+      </button>
+      <button
+        type="button"
+        class="hero-button hero-button--light"
+        (click)="handleRegister()"
+      >
+        Registrarse
+      </button>
+    </header>
+
+    <div
+      class="hero-content"
+      [ngClass]="{
+        'hero-content--exiting': isExiting,
+        'hero-content--visible': isLoaded && !isExiting,
+        'hero-content--initial': !isLoaded && !isExiting
+      }"
+    >
+      <div class="hero-layout">
+        <div class="hero-text">
+          <h1 class="hero-title">
+            EngeSearch
+          </h1>
+          <p class="hero-description">
+            Your custom and efficient AI-powered search engine with intelligent graphs that identifies critical research areas, helping scientists and engineers plan human exploration of deep space.
+          </p>
+          <button
+            (click)="handleViewMore()"
+            class="hero-action"
+            type="button"
+          >
+            Ver más
+          </button>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-logo">
+            <img src="/assets/logoo.png" alt="Logo" class="hero-logo__image" />
+            <img
+              src="/assets/solo.png"
+              alt="Overlay"
+              class="hero-logo__overlay animate-rotate"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="home-assist">
+    <div class="home-assist__inner">
+              <h2 class="home-assist__title">Descubre palabras clave en segundos</h2>
+      <div class="home-assist__intro">
+
+
+        <div *ngIf="homeIsSearching || homeResults.length || homeSearchError || hasPerformedSearch" class="home-results home-results--inline">
+          <div *ngIf="homeSearchError" class="home-results__error">{{ homeSearchError }}</div>
+
+          <div *ngIf="homeIsSearching" class="home-results__loading" aria-live="polite">
+            <span class="home-results__spinner" aria-hidden="true"></span>
+            <span>Buscando resultados relacionados…</span>
+          </div>
+
+          <ng-container *ngIf="!homeIsSearching">
+            <div *ngIf="homeResults.length" class="home-results__list">
+              <div
+                *ngFor="let article of homeResults | slice:0:3; trackBy: trackByHomeArticle"
+                class="home-results__item"
+              >
+                <app-article-card
+                  [article]="article"
+                  viewMode="list"
+                  [disableBookmark]="true"
+                  (tagClick)="handleResultTagClick($event)"
+                ></app-article-card>
+              </div>
+
+              <div *ngIf="homeLockedCount > 0" class="home-results__placeholder">
+                <span class="home-results__lock-icon" aria-hidden="true">🔒</span>
+                <div class="home-results__placeholder-text">
+                  <p class="home-results__placeholder-title">Contenido premium</p>
+                  <p class="home-results__placeholder-subtitle">
+                    Inicia sesión para desbloquear {{ homeLockedCount }} resultado{{ homeLockedCount > 1 ? 's' : '' }} adicional{{ homeLockedCount > 1 ? 'es' : '' }}.
+                  </p>
+                </div>
+                <button type="button" class="home-results__placeholder-action" (click)="handleLogin()">
+                  Iniciar sesión
+                </button>
+              </div>
+            </div>
+
+            <p *ngIf="!homeResults.length && hasPerformedSearch && !homeSearchError" class="home-results__empty">
+              No encontramos coincidencias todavía. Ajusta tu descripción o prueba con otras palabras clave.
+            </p>
+          </ng-container>
+        </div>
+      </div>
+      <div class="home-assist__widget">
+        <app-search-assist
+          #assistRef
+          [sourceText]="homeSearchInput"
+          (selectKeyword)="handleAssistKeywordSelect($event)"
+          [showManualTrigger]="false"
+        ></app-search-assist>
+      </div>
+      <div *ngIf="homeSelectedKeywords.length" class="home-assist__selected">
+        <span *ngFor="let keyword of homeSelectedKeywords" class="home-assist__chip">
+          {{ keyword }}
+          <button
+            type="button"
+            class="home-assist__chip-remove"
+            (click)="removeSelectedKeyword(keyword)"
+            aria-label="Eliminar palabra clave"
+          >
+            ×
+          </button>
+        </span>
+      </div>
+      <form class="home-assist__search" (ngSubmit)="handleSearchSubmit()">
+        <div class="home-assist__search-box">
+          <button
+            type="button"
+            class="home-assist__manual panel-link inline-flex items-center gap-2 px-4 py-2 text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+            [class.panel-link-disabled]="assistRef?.loading || !homeSearchInput.trim()"
+            [disabled]="assistRef?.loading || !homeSearchInput.trim()"
+            (click)="assistRef?.handleManualFetch()"
+          >
+            <span role="img" aria-label="sparkles">✨</span>
+            Suggest keywords with AI
+            </button>
+          <textarea
+            id="home-search-input"
+            name="homeSearchInput"
+            class="home-assist__textarea"
+            placeholder="Escribe una idea o tema para explorar..."
+            rows="3"
+            [(ngModel)]="homeSearchInput"
+            (ngModelChange)="handleSearchInputChange($event)"
+            (keydown)="handleHomeKeydown($event)"
+          ></textarea>
+          <button
+            type="submit"
+            class="home-assist__submit"
+            [disabled]="homeIsSearching || (!homeSearchInput.trim() && !homeSelectedKeywords.length)"
+          >
+            {{ homeIsSearching ? 'Buscando...' : 'Buscar ahora' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </section>
+</div>

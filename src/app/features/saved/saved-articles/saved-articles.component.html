@@ -1,0 +1,95 @@
+<div class="pb-20">
+  <div class="m-6 flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-foreground">Saved</h1>
+
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        class="p-2 rounded-lg transition-colors"
+        [ngClass]="viewMode === 'grid' ? 'bg-[#384CBF] text-white' : 'bg-muted text-muted-foreground hover:bg-muted'"
+        (click)="toggleView('grid')"
+        aria-label="View grid"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="p-2 rounded-lg transition-colors"
+        [ngClass]="viewMode === 'list' ? 'bg-[#384CBF] text-white' : 'bg-muted text-muted-foreground hover:bg-muted'"
+        (click)="toggleView('list')"
+        aria-label="View list"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="p-4 mb-6">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-semibold text-foreground flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z" />
+          </svg>
+          My saved docs
+        </h2>
+        <p class="text-sm text-muted-foreground mt-1">Analyze your saved docs and begin to work</p>
+      </div>
+      <button
+        type="button"
+        class="px-12 py-4 bg-[#384CBF] text-white rounded-full hover:bg-[#384CBF]/90 transition-colors flex items-center gap-2"
+        aria-label="Go to graph view"
+        (click)="goToGraph()"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="6" cy="18" r="2" />
+          <circle cx="18" cy="18" r="2" />
+          <circle cx="12" cy="6" r="2" />
+          <line x1="6" y1="18" x2="12" y2="6" />
+          <line x1="12" y1="6" x2="18" y2="18" />
+          <line x1="6" y1="18" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <p class="text-sm text-muted-foreground">{{ displayedArticles.length }} saved docs</p>
+  </div>
+
+  <div *ngIf="error" class="mx-6 mt-2 text-sm text-red-600">{{ error }}</div>
+
+  <div *ngIf="displayedArticles.length === 0" class="mx-6 text-muted-foreground text-sm">
+    You do not have saved docs yet
+  </div>
+
+  <div
+    *ngIf="displayedArticles.length > 0"
+    class="mx-6 gap-6"
+    [ngClass]="viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch' : 'flex flex-col'"
+  >
+    <div *ngFor="let article of displayedArticles; trackBy: trackByArticleId" class="h-full">
+      <app-article-card
+        [article]="article"
+        [viewMode]="viewMode"
+        [isBookmarked]="true"
+        (bookmarkToggle)="handleBookmarkToggle(article)"
+      ></app-article-card>
+    </div>
+    <!-- Add-more card -->
+    <div class="h-full">
+      <a
+        routerLink="/search"
+        class="block w-full h-full bg-card rounded-xl overflow-hidden border border-dashed border-gray-300 flex items-center justify-center hover:shadow-lg transition-colors"
+        aria-label="Add more articles"
+      >
+        <div class="flex flex-col items-center justify-center gap-2 p-6 text-center">
+          <div class="w-12 h-12 rounded-full bg-[#384CBF] text-white flex items-center justify-center text-xl font-bold">+</div>
+          <div class="text-sm font-semibold text-foreground">Explore with Assisted search</div>
+          <div class="text-xs text-muted-foreground">Get AI suggestions and add more documents</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

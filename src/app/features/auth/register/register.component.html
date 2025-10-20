@@ -1,0 +1,88 @@
+<div class="register-wrapper">
+  <div class="register-card">
+    <button type="button" class="back-button" (click)="handleBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+      </svg>
+    </button>
+
+    <h1 class="title">Crea tu cuenta</h1>
+
+    <form class="form" (ngSubmit)="handleSubmit()" #registerForm="ngForm">
+      <label class="field">
+        <span>Nombre completo</span>
+        <input
+          type="text"
+          name="name"
+          required
+          [(ngModel)]="form.name"
+          placeholder="Nombre y apellido"
+          autocomplete="name"
+        />
+      </label>
+
+      <label class="field">
+        <span>Correo electrónico</span>
+        <input
+          type="email"
+          name="email"
+          required
+          [(ngModel)]="form.email"
+          placeholder="tu@correo.com"
+          autocomplete="email"
+        />
+      </label>
+
+      <label class="field">
+        <span>Contraseña</span>
+        <input
+          type="password"
+          name="password"
+          required
+          minlength="8"
+          [(ngModel)]="form.password"
+          placeholder="Mínimo 8 caracteres"
+          autocomplete="new-password"
+        />
+      </label>
+
+      <label class="field">
+        <span>Confirmar contraseña</span>
+        <input
+          type="password"
+          name="confirmPassword"
+          required
+          [(ngModel)]="form.confirmPassword"
+          placeholder="Repite tu contraseña"
+          autocomplete="new-password"
+        />
+      </label>
+
+
+
+      <button
+        type="submit"
+        class="submit"
+        [disabled]="isSubmitting || registerForm.invalid"
+      >
+        {{ isSubmitting ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
+
+      <p *ngIf="error" class="error">
+        {{ error }}
+      </p>
+    </form>
+
+    <p class="footer-text">
+      ¿Ya tienes cuenta?
+      <button type="button" class="link-button" (click)="handleLogin()">Inicia sesión</button>
+    </p>
+  </div>
+
+  <div class="promo">
+    <h2>Colabora con visión</h2>
+    <p>
+      Regístrate y construye tu red de investigación con recomendaciones personalizadas y descubrimientos guiados por IA.
+    </p>
+  </div>
+</div>

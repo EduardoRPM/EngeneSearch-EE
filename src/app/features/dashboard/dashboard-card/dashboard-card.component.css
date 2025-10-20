@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.dashboard__Welcome-wrapper {
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  transition:
+    max-height 0.6s ease,
+    opacity 0.6s ease,
+    margin-bottom 0.6s ease;
+  max-height: 5rem;
+  opacity: 1;
+}
+
+.dashboard__Welcome-wrapper--hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+}
+
+.dashboard__Welcome {
+  text-align: center;
+  font-size: clamp(1.75rem, 2.5vw + 1rem, 2.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+  opacity: 0;
+  animation: welcome-sequence 6s ease forwards;
+}
+
+@keyframes welcome-sequence {
+  0% {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    visibility: visible;
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-1rem);
+    visibility: hidden;
+  }
+}

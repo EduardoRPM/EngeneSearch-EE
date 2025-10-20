@@ -1,0 +1,235 @@
+<div
+  [ngClass]="[
+    'bg-card rounded-xl overflow-hidden border transition-shadow',
+    isBookmarked ? 'border-yellow-400 shadow-lg' : 'border-border hover:shadow-lg'
+  ]"
+  class="w-full h-full"
+>
+  <ng-container [ngSwitch]="viewMode">
+    <ng-container *ngSwitchCase="'list'">
+      <div class="flex gap-4 p-4">
+        <div class="relative w-56 h-40 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+          <img
+            [src]="article.image || fallbackImage"
+            [alt]="article.title"
+            class="object-cover w-full h-full"
+          />
+          <button
+            type="button"
+            class="absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            [ngClass]="isBookmarked ? 'bg-yellow-300 text-yellow-900 hover:bg-yellow-400' : 'bg-[#384CBF] text-white hover:bg-[#384CBF]/90'"
+            [disabled]="disableBookmark"
+            (click)="handleBookmark()"
+            aria-label="Toggle bookmark"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex-1 flex flex-col h-full">
+          <div class="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+            <span *ngIf="article.year" class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 2.25H6a2.25 2.25 0 0 0-2.25 2.25v15l5.25-2.25L14.25 19.5l5.25 2.25v-15A2.25 2.25 0 0 0 18 2.25Z" />
+              </svg>
+              {{ article.year }}
+            </span>
+            <span *ngIf="article.author" class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0V21a.75.75 0 0 1-.75.75h-13.5A.75.75 0 0 1 4.5 21v-.882Z" />
+              </svg>
+              {{ article.author }}
+            </span>
+            <span *ngIf="article.badge" class="px-2 py-1 rounded-full bg-[#E8E6FF] text-[#3D4676]">{{ article.badge }}</span>
+          </div>
+
+          <h4 class="text-lg font-bold text-foreground mb-3 line-clamp-2">
+            {{ article.title }}
+          </h4>
+
+          <div *ngIf="article.tags?.length" class="flex flex-wrap gap-2 mb-3">
+            <ng-container *ngFor="let tag of article.tags; trackBy: trackByIndex">
+              <button
+                type="button"
+                class="px-3 py-1 bg-[#E8E6FF] text-[#3D4676] text-xs rounded-full transition hover:bg-[#cfd1ff]"
+                (click)="handleTagClick(tag)"
+              >
+                {{ tag }}
+              </button>
+            </ng-container>
+          </div>
+
+          <p *ngIf="article.description" class="text-sm text-muted-foreground mb-4 line-clamp-2">
+            {{ article.description }}
+          </p>
+
+          <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
+            <div class="flex items-center gap-4 text-sm text-foreground">
+              <div *ngIf="article.likes !== undefined" class="flex items-center gap-1">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M7.17 6A5 5 0 0 0 2 11v5h5v-5H3a3 3 0 0 1 3-3h1.17zM17.17 6A5 5 0 0 0 12 11v5h5v-5h-4a3 3 0 0 1 3-3h1.17z" />
+                </svg>
+                <span>{{ article.likes }}</span>
+              </div>
+              <div *ngIf="article.comments !== undefined" class="flex items-center gap-1">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                <span>{{ article.comments }}</span>
+              </div>
+            </div>
+
+            <ng-container *ngIf="article.link; else openButtonList">
+              <a
+                [href]="article.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-foreground hover:text-primary transition-colors"
+                aria-label="Abrir artículo en nueva pestaña"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 6.75 17.25" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h9v9" />
+                </svg>
+              </a>
+            </ng-container>
+            <ng-template #openButtonList>
+              <button
+                type="button"
+                class="text-foreground transition-colors"
+                [ngClass]="open.observed ? 'hover:text-primary' : 'cursor-not-allowed opacity-40'"
+                (click)="open.observed ? handleOpen() : null"
+                [disabled]="!open.observed"
+                aria-label="Ver detalles del artículo"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 6.75 17.25" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h9v9" />
+                </svg>
+              </button>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngSwitchDefault>
+      <div class="relative h-48 bg-muted">
+        <img
+          [src]="article.image || fallbackImage"
+          [alt]="article.title"
+          class="object-cover w-full h-full"
+        />
+        <button
+          type="button"
+          class="absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+          [ngClass]="isBookmarked ? 'bg-yellow-300 text-yellow-900 hover:bg-yellow-400' : 'bg-[#384CBF] text-white hover:bg-[#384CBF]/90'"
+          [disabled]="disableBookmark"
+          (click)="handleBookmark()"
+          aria-label="Toggle bookmark"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 flex flex-col h-full">
+        <div class="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+          <span *ngIf="article.year" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 2.25H6a2.25 2.25 0 0 0-2.25 2.25v15l5.25-2.25L14.25 19.5l5.25 2.25v-15A2.25 2.25 0 0 0 18 2.25Z" />
+            </svg>
+            {{ article.year }}
+          </span>
+          <span *ngIf="article.author" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0V21a.75.75 0 0 1-.75.75h-13.5A.75.75 0 0 1 4.5 21v-.882Z" />
+            </svg>
+            {{ article.author }}
+          </span>
+          <span *ngIf="article.badge" class="px-2 py-1 rounded-full bg-[#E8E6FF] text-[#3D4676]">{{ article.badge }}</span>
+        </div>
+
+        <h3 class="text-base font-bold text-foreground mb-3 line-clamp-2">
+          {{ article.title }}
+        </h3>
+
+        <div *ngIf="article.tags?.length" class="flex flex-wrap gap-2 mb-3">
+          <ng-container *ngFor="let tag of article.tags; trackBy: trackByIndex">
+            <button
+              type="button"
+              class="px-3 py-1 bg-[#E8E6FF] text-[#3D4676] text-xs rounded-full transition hover:bg-[#cfd1ff]"
+              (click)="handleTagClick(tag)"
+            >
+              {{ tag }}
+            </button>
+          </ng-container>
+        </div>
+
+        <p *ngIf="article.description" class="text-sm text-muted-foreground mb-4 line-clamp-3">
+          {{ article.description }}
+        </p>
+
+        <div class="flex items-center justify-between pt-3 border-t border-border mt-auto">
+          <div class="flex items-center gap-4 text-sm text-foreground">
+            <div *ngIf="article.likes !== undefined" class="flex items-center gap-1">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7.17 6A5 5 0 0 0 2 11v5h5v-5H3a3 3 0 0 1 3-3h1.17zM17.17 6A5 5 0 0 0 12 11v5h5v-5h-4a3 3 0 0 1 3-3h1.17z" />
+              </svg>
+              <span>{{ article.likes }}</span>
+            </div>
+            <div *ngIf="article.comments !== undefined" class="flex items-center gap-1">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z" />
+              </svg>
+              <span>{{ article.comments }}</span>
+            </div>
+          </div>
+
+          <ng-container *ngIf="article.link; else openButtonGrid">
+            <a
+              [href]="article.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-foreground hover:text-primary transition-colors"
+              aria-label="Abrir artículo en nueva pestaña"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 6.75 17.25" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h9v9" />
+              </svg>
+            </a>
+          </ng-container>
+          <ng-template #openButtonGrid>
+            <button
+              type="button"
+              class="text-foreground transition-colors"
+              [ngClass]="open.observed ? 'hover:text-primary' : 'cursor-not-allowed opacity-40'"
+              (click)="open.observed ? handleOpen() : null"
+              [disabled]="!open.observed"
+              aria-label="Ver detalles del artículo"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 6.75 17.25" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h9v9" />
+              </svg>
+            </button>
+          </ng-template>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

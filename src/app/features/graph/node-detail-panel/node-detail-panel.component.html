@@ -1,0 +1,104 @@
+<div class="h-full bg-background flex flex-col">
+  <div class="p-4 border-b border-border flex items-center justify-between">
+    <h2 class="text-lg font-semibold text-foreground">
+      {{ node.type === 'article' ? 'Article Details' : node.type === 'topic' ? 'Topic' : 'Author' }}
+    </h2>
+    <button type="button" class="p-2 hover:bg-secondary rounded-lg transition-colors" (click)="close.emit()" aria-label="Close panel">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6m0 12L6 6" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto" *ngIf="article as currentArticle; else nodeSummary">
+    <div class="p-6 space-y-6">
+      <div>
+        <h1 class="text-2xl font-bold text-foreground mb-2">{{ currentArticle.title }}</h1>
+        <div class="flex items-center gap-4 text-sm text-muted-foreground">
+          <div class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 2.25H6a2.25 2.25 0 0 0-2.25 2.25v15l5.25-2.25L14.25 19.5l5.25 2.25v-15A2.25 2.25 0 0 0 18 2.25Z" />
+            </svg>
+            <span>{{ currentArticle.year }}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6m0 12L6 6" />
+            </svg>
+            <span>{{ getCitationCount(currentArticle) }} citations</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center gap-2 mb-2 font-bold text-green-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-5M3 9V4h5" />
+          </svg>
+          <span class="text-sm">Authors</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let author of currentArticle.authors; trackBy: trackByIndex" class="bg-secondary text-secondary-foreground text-sm px-2 py-1 rounded">
+            {{ author }}
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="currentArticle.abstract as abstractSections">
+        <h3 class="text-sm font-bold text-green-600 mb-2">Abstract:</h3>
+        <p class="text-sm text-justify text-muted-foreground leading-relaxed">
+          {{ showFullAbstract ? getAbstractFull(abstractSections) : getAbstractPreview(abstractSections) }}
+        </p>
+        <button type="button" class="text-sm text-teal-500 hover:text-teal-600 mt-2 font-medium" (click)="toggleAbstract()">
+          {{ showFullAbstract ? 'read less ↑' : 'read more ↓' }}
+        </button>
+      </div>
+
+      <div *ngIf="currentArticle.topics as topics">
+        <h3 class="text-sm font-bold text-green-600 mb-2">Topics:</h3>
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let topic of topics; trackBy: trackByIndex" class="px-3 py-1 bg-orange-500/10 text-orange-500 rounded-full text-xs font-medium">
+            {{ topic }}
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <a
+          [href]="currentArticle.link"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-sm text-teal-500 hover:text-teal-600 font-medium"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 6.75 17.25M8.25 6.75h9v9" />
+          </svg>
+          View full article
+        </a>
+      </div>
+
+      <app-article-chat-modal [article]="currentArticle" triggerLabel="Ask your PDF"></app-article-chat-modal>
+    </div>
+  </div>
+
+  <ng-template #nodeSummary>
+    <div class="p-6">
+      <div class="bg-secondary rounded-lg p-6 text-center">
+        <div class="w-16 h-16 bg-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg *ngIf="node.type === 'topic'; else authorIcon" class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          <ng-template #authorIcon>
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0V21a.75.75 0 0 1-.75.75h-13.5A.75.75 0 0 1 4.5 21v-.882Z" />
+            </svg>
+          </ng-template>
+        </div>
+        <h3 class="text-lg font-semibold text-foreground mb-2">{{ node.label }}</h3>
+        <p class="text-sm text-muted-foreground">
+          {{ node.type === 'topic' ? 'This topic appears across multiple research articles' : 'Author of multiple research papers' }}
+        </p>
+      </div>
+    </div>
+  </ng-template>
+</div>

@@ -1,0 +1,31 @@
+<div class="h-screen flex flex-col bg-background">
+  <div class="flex-1 flex overflow-hidden">
+    <div class="transition-all duration-300 ease-in-out" [ngClass]="selectedNode ? 'w-[90%]' : 'w-full'">
+      <ng-container *ngIf="savedArticles.length; else emptyState">
+        <app-knowledge-graph
+          [articles]="savedArticles"
+          [selectedNodeId]="selectedNode?.id ?? null"
+          (nodeClick)="handleNodeClick($event)"
+        ></app-knowledge-graph>
+      </ng-container>
+    </div>
+
+    <div
+      class="transition-all duration-300 ease-in-out border-l border-border"
+      [ngClass]="selectedNode ? 'w-[55%] opacity-100' : 'w-0 opacity-0 overflow-hidden'"
+    >
+      <app-node-detail-panel
+        *ngIf="selectedNode"
+        [node]="selectedNode"
+        [article]="selectedArticle"
+        (close)="handleClosePanel()"
+      ></app-node-detail-panel>
+    </div>
+  </div>
+</div>
+
+<ng-template #emptyState>
+  <div class="h-full flex items-center justify-center text-muted-foreground text-sm">
+    Save some articles to explore the knowledge graph.
+  </div>
+</ng-template>

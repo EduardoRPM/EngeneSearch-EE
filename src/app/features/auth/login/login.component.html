@@ -1,0 +1,71 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <button type="button" class="back-button" (click)="handleBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+      </svg>
+    </button>
+
+    <h1 class="title">Inicia sesión</h1>
+    <p class="subtitle">Accede para continuar explorando investigaciones.</p>
+
+    <form class="form" (ngSubmit)="handleSubmit()" #loginForm="ngForm">
+      <label class="field">
+        <span>Correo electrónico</span>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="credentials.email"
+          required
+          autocomplete="email"
+          placeholder="tu@correo.com"
+        />
+      </label>
+
+      <label class="field">
+        <span>Contraseña</span>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="credentials.password"
+          required
+          autocomplete="current-password"
+          placeholder="••••••••"
+        />
+      </label>
+
+      <div class="actions">
+        <label class="remember">
+          <input type="checkbox" name="remember" />
+          <span>Recordarme</span>
+        </label>
+
+        <a class="link" href="#">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button
+        type="submit"
+        class="submit"
+        [disabled]="isSubmitting || loginForm.invalid"
+      >
+        {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
+      </button>
+
+      <p *ngIf="error" class="error">
+        {{ error }}
+      </p>
+    </form>
+
+    <p class="footer-text">
+      ¿No tienes cuenta?
+      <a class="link" href="#">Regístrate</a>
+    </p>
+  </div>
+
+  <div class="promo">
+    <h2>Explora conexiones inteligentes</h2>
+    <p>
+      EngeSearch construye grafos semánticos para ayudarte a descubrir nuevas ideas y acelerar tus proyectos.
+    </p>
+  </div>
+</div>

@@ -1,0 +1,308 @@
+<ng-container *ngIf="topByCitationsDesc.length; else loadingState">
+  <div class="dashboard" [class.dashboard--welcome-hidden]="hideWelcome">
+      <div
+        *ngIf="showWelcome"
+        class="dashboard__Welcome-wrapper"
+        [class.dashboard__Welcome-wrapper--hidden]="hideWelcome"
+      >
+        <p class="dashboard__Welcome">
+          {{ welcomeMessage }}
+        </p>
+      </div>
+    <div class="dashboard__content">
+      <section class="dashboard__hero">
+        <div class="dashboard__hero-copy">
+          <p class="dashboard__eyebrow">{{ heroEyebrow }}</p>
+          <h1 class="dashboard__title">{{ heroTitle }}</h1>
+          <p class="dashboard__subtitle">
+            {{ heroSubtitle }}
+          </p>
+        </div>
+
+        <div class="dashboard__summary">
+          <article class="summary-card summary-card--primary">
+            <div class="summary-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </div>
+            <div>
+              <p class="summary-card__label">Indexed articles</p>
+              <p class="summary-card__value">{{ totalArticles | number }}</p>
+            </div>
+          </article>
+
+          <article class="summary-card summary-card--accent">
+            <div class="summary-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 3.75A2.25 2.25 0 0 1 8.25 1.5h7.5A2.25 2.25 0 0 1 18 3.75v18l-6-3-6 3v-18Z" />
+              </svg>
+            </div>
+            <div>
+              <p class="summary-card__label">Saved articles</p>
+              <p class="summary-card__value">{{ savedArticles | number }}</p>
+            </div>
+          </article>
+
+          <article class="summary-card">
+            <div class="summary-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m9-9H3" />
+              </svg>
+            </div>
+            <div>
+              <p class="summary-card__label">Unique topics</p>
+              <p class="summary-card__value">{{ uniqueTopics | number }}</p>
+            </div>
+          </article>
+
+          <article class="summary-card">
+            <div class="summary-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M9 11h6m-9 8h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
+              </svg>
+            </div>
+            <div>
+              <p class="summary-card__label">Latest publication</p>
+              <p class="summary-card__value">{{ latestPublicationYear }}</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <div class="dashboard__grid">
+        <section class="dashboard-panel dashboard-panel--indigo">
+          <header class="dashboard-panel__header">
+            <div>
+              <p class="dashboard-panel__eyebrow">Impact leaders</p>
+              <h2 class="dashboard-panel__title">Most cited</h2>
+            </div>
+            <div class="dashboard-panel__actions">
+              <button type="button" class="icon-button" (click)="prevTrend()" aria-label="Previous most cited article">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m15 19-7-7 7-7" />
+                </svg>
+              </button>
+              <button type="button" class="icon-button" (click)="nextTrend()" aria-label="Next most cited article">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <ng-container *ngIf="topByCitationsDesc[trendIndex] as current">
+            <article class="panel-card">
+              <div class="panel-card__metric">
+                <span class="panel-card__metric-label">Total citations</span>
+                <span class="panel-card__metric-value">{{ getCitationCount(current) | number }}</span>
+              </div>
+
+              <h3 class="panel-card__headline">{{ current.title }}</h3>
+
+              <div class="panel-card__meta">
+                <span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 2.25H6a2.25 2.25 0 0 0-2.25 2.25v15l5.25-2.25L14.25 19.5l5.25 2.25v-15A2.25 2.25 0 0 0 18 2.25Z" />
+                  </svg>
+                  {{ current.year }}
+                </span>
+                <span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0V21a.75.75 0 0 1-.75.75h-13.5A.75.75 0 0 1 4.5 21v-.882Z" />
+                  </svg>
+                  {{ current.firstAuthor }}
+                </span>
+              </div>
+
+              <p class="panel-card__excerpt">{{ current.abstract?.[0] }}</p>
+
+              <div class="panel-card__tags">
+                <span *ngFor="let topic of (current.topics | slice:0:4); trackBy: trackByIndex" class="panel-tag">
+                  {{ formatTopic(topic) }}
+                </span>
+                <span *ngIf="current.topics.length > 4" class="panel-tag panel-tag--pill">+{{ current.topics.length - 4 }}</span>
+              </div>
+
+              <div class="panel-card__footer">
+                <a
+                  [href]="current.link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="panel-link"
+                >
+                  {{ primaryActionLabel }}
+                </a>
+              </div>
+            </article>
+
+            <div class="panel-dots">
+              <button
+                *ngFor="let _ of topByCitationsDesc; let i = index"
+                type="button"
+                class="panel-dots__dot"
+                [class.panel-dots__dot--active]="trendIndex === i"
+                (click)="goToTrend(i)"
+                [attr.aria-label]="'Go to most cited article ' + (i + 1)"
+              ></button>
+            </div>
+          </ng-container>
+        </section>
+
+        <section class="dashboard-panel dashboard-panel--blue">
+          <header class="dashboard-panel__header">
+            <div>
+              <p class="dashboard-panel__eyebrow">Emerging themes</p>
+              <h2 class="dashboard-panel__title">Best topics</h2>
+            </div>
+            <div class="dashboard-panel__actions">
+              <button type="button" class="icon-button" (click)="prevTopic()" aria-label="Previous top topic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m15 19-7-7 7-7" />
+                </svg>
+              </button>
+              <button type="button" class="icon-button" (click)="nextTopic()" aria-label="Next top topic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <ng-container *ngIf="topByCitationsAsc[topicIndex] as current">
+            <article class="panel-card">
+              <div class="panel-card__metric">
+                <span class="panel-card__metric-label">Influential citations</span>
+                <span class="panel-card__metric-value">{{ getInfluentialCount(current) | number }}</span>
+              </div>
+
+              <h3 class="panel-card__headline">{{ current.title }}</h3>
+
+              <div class="panel-card__meta">
+                <span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 2.25H6a2.25 2.25 0 0 0-2.25 2.25v15l5.25-2.25L14.25 19.5l5.25 2.25v-15A2.25 2.25 0 0 0 18 2.25Z" />
+                  </svg>
+                  {{ current.year }}
+                </span>
+                <span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0V21a.75.75 0 0 1-.75.75h-13.5A.75.75 0 0 1 4.5 21v-.882Z" />
+                  </svg>
+                  {{ current.firstAuthor }}
+                </span>
+              </div>
+
+              <div class="panel-card__tags panel-card__tags--dense">
+                <span *ngFor="let topic of (current.topics | slice:0:5); trackBy: trackByIndex" class="panel-tag">
+                  {{ formatTopic(topic) }}
+                </span>
+                <span *ngIf="current.topics.length > 5" class="panel-tag panel-tag--pill">+{{ current.topics.length - 5 }}</span>
+              </div>
+
+              <p class="panel-card__excerpt">{{ current.abstract?.[0] }}</p>
+
+              <div class="panel-card__footer">
+                <a
+                  [href]="current.link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="panel-link"
+                >
+                  {{ topicActionLabel }}
+                </a>
+              </div>
+            </article>
+
+            <div class="panel-dots">
+              <button
+                *ngFor="let _ of topByCitationsAsc; let i = index"
+                type="button"
+                class="panel-dots__dot"
+                [class.panel-dots__dot--active]="topicIndex === i"
+                (click)="goToTopic(i)"
+                [attr.aria-label]="'Go to top topic ' + (i + 1)"
+              ></button>
+            </div>
+          </ng-container>
+        </section>
+
+        <section class="dashboard-panel dashboard-panel--green">
+          <header class="dashboard-panel__header">
+            <div>
+              <p class="dashboard-panel__eyebrow">Fresh arrivals</p>
+              <h2 class="dashboard-panel__title">Recents</h2>
+            </div>
+            <div class="dashboard-panel__actions">
+              <button type="button" class="icon-button" (click)="prevRecent()" aria-label="Previous recent article">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m15 19-7-7 7-7" />
+                </svg>
+              </button>
+              <button type="button" class="icon-button" (click)="nextRecent()" aria-label="Next recent article">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <ng-container *ngIf="topByDate[recentIndex] as current">
+            <article class="panel-card">
+              <div class="panel-card__metric">
+                <span class="panel-card__metric-label">Published</span>
+                <span class="panel-card__metric-value">{{ current.year }}</span>
+              </div>
+
+              <h3 class="panel-card__headline">{{ current.title }}</h3>
+
+              <div class="panel-card__meta">
+                <span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0V21a.75.75 0 0 1-.75.75h-13.5A.75.75 0 0 1 4.5 21v-.882Z" />
+                  </svg>
+                  {{ current.firstAuthor }}
+                </span>
+              </div>
+
+              <div class="panel-card__tags">
+                <span *ngFor="let topic of (current.topics | slice:0:4); trackBy: trackByIndex" class="panel-tag">
+                  {{ formatTopic(topic) }}
+                </span>
+                <span *ngIf="current.topics.length > 4" class="panel-tag panel-tag--pill">+{{ current.topics.length - 4 }}</span>
+              </div>
+
+              <p class="panel-card__excerpt">{{ current.abstract?.[0] }}</p>
+
+              <div class="panel-card__footer">
+                <a
+                  [href]="current.link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="panel-link"
+                >
+                  {{ recentActionLabel }}
+                </a>
+              </div>
+            </article>
+
+            <div class="panel-dots">
+              <button
+                *ngFor="let _ of topByDate; let i = index"
+                type="button"
+                class="panel-dots__dot"
+                [class.panel-dots__dot--active]="recentIndex === i"
+                (click)="goToRecent(i)"
+                [attr.aria-label]="'Go to recent article ' + (i + 1)"
+              ></button>
+            </div>
+          </ng-container>
+        </section>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #loadingState>
+  <div class="dashboard__loading">Loading articles…</div>
+</ng-template>

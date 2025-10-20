@@ -1,0 +1,7 @@
+<ng-container *ngIf="savedArticles$ | async as savedArticles; else loadingState">
+  <app-saved-articles [articles]="savedArticles"></app-saved-articles>
+</ng-container>
+
+<ng-template #loadingState>
+  <app-saved-articles [articles]="[]"></app-saved-articles>
+</ng-template>

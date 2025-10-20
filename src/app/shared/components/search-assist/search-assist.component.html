@@ -1,0 +1,43 @@
+<div class="search-assist w-full" style="max-width: 640px;">
+  <div *ngIf="showManualTrigger" class="flex flex-wrap items-center gap-3">
+    <button
+      type="button"
+      (click)="handleManualFetch()"
+      [disabled]="loading || !sourceText.trim()"
+      class="panel-link inline-flex items-center gap-2 px-4 py-2 text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+      [class.panel-link-disabled]="loading || !sourceText.trim()"
+    >
+      <span role="img" aria-label="sparkles">✨</span>
+      Suggest keywords with AI
+    </button>
+    <span class="text-sm text-gray-500"></span>
+  </div>
+
+  <div *ngIf="loading" class="mt-3 flex items-center gap-2 text-gray-600">
+    <span class="spinner" aria-hidden="true"></span>
+    <span>Generating suggestions...</span>
+  </div>
+
+  <div *ngIf="error" class="mt-3 text-sm text-red-600">Error: {{ error }}</div>
+
+  <div *ngIf="keywords.length > 0" class="mt-3 flex flex-wrap gap-2">
+    <button
+      *ngFor="let keyword of keywords"
+      type="button"
+      (click)="handleSelect(keyword)"
+      class="text-lg px-3 py-1 tag rounded border border-gray-200 bg-white hover:bg-gray-50 transition"
+    >
+      {{ keyword }}
+    </button>
+  </div>
+
+<!--   <div class="mt-3 flex items-center gap-2">
+    <button type="button" class="text-blue-600 hover:underline" (click)="toggleRaw()">
+      {{ showRaw ? 'Hide raw JSON' : 'Show raw JSON' }}
+    </button>
+  </div> -->
+
+  <pre *ngIf="showRaw" class="mt-2 bg-gray-900 text-gray-100 p-3 rounded-md overflow-auto">
+{{ rawJson ?? 'No raw response yet.' }}
+  </pre>
+</div>
